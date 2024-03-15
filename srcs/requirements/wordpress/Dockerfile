@@ -3,7 +3,7 @@ FROM debian:11
 WORKDIR /
 
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get -y install php php-fpm mariadb-client wordpress wget
+RUN apt-get -y install php php-fpm mariadb-client sendmail wordpress wget
 
 RUN mkdir -p /run/php && mkdir -p /var/www/html
 

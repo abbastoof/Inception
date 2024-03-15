@@ -15,11 +15,9 @@ else
     && wp core install --path=/var/www/html --url=${DOMAIN_NAME} --title=${WORDPRESS_TITLE} --admin_user=${WORDPRESS_ADMIN_USER} --admin_password=${WORDPRESS_ADMIN_PASSWORD} --admin_email=${WORDPRESS_ADMIN_EMAIL} --allow-root \
     && wp user create ${WORDPRESS_USER} ${WORDPRESS_USER_EMAIL} --role=author --user_pass=${WORDPRESS_USER_PASSWORD} --path=/var/www/html --allow-root \
     && wp theme install twentynineteen --activate --path=/var/www/html --allow-root \
-    && wp option update siteurl "https://${DOMAIN_NAME}" \
-    && wp option update home "https://${DOMAIN_NAME}" \
+    && wp option update siteurl "https://${DOMAIN_NAME}" --allow-root \
+    && wp option update home "https://${DOMAIN_NAME}" --allow-root \
     && touch /var/www/html/.wordpress_installed
-    # chown -R www-data:www-data /var/www/html
-    # chmod -R 775 /var/www/html
     echo "WordPress is installed"
 fi
 

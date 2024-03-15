@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/03/10 15:26:46 by atoof             #+#    #+#              #
-#    Updated: 2024/03/10 15:26:46 by atoof            ###   ########.fr        #
+#    Created: 2024/03/15 14:48:25 by atoof             #+#    #+#              #
+#    Updated: 2024/03/15 14:48:25 by atoof            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,9 @@ prepare:
 		mkdir -p /home/atoof/data/mariadb-data; \
 		chmod -R 777 /home/atoof/data/mariadb-data; \
 	fi
-	@if [ ! grep -q "$(DOMAIN)" /etc/hosts ]; then \
-		echo "127.0.0.1 $(DOMAIN)" | sudo tee -a /etc/hosts; \
+
+	@if ! grep -q "$(DOMAIN)" /etc/hosts; then \
+    	echo "127.0.0.1 $(DOMAIN)" | sudo tee -a /etc/hosts; \
 	fi
 
 # Build and start the services
@@ -65,10 +66,20 @@ clean:
 	@docker-compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans
 	@docker volume prune -f
 	@docker system prune -af --volumes
-	# Attempt to remove data directories with sudo to overcome potential permission issues
-	@echo "Removing data directories..."
-	@sudo rm -rf /home/atoof/data/wordpress-data
-	@sudo rm -rf /home/atoof/data/mariadb-data
+	@echo "Waiting for Docker resources to be fully released..."
+	@sleep 5
+	@echo "Checking for active processes that might be using the data directories...";
+# We will list all processes using the data directories and check if there are any active processes
+	@if sudo lsof +D /home/atoof/data/ 2>/dev/null; then \
+		echo "Warning: Active processes are using the data directories. Please ensure all processes are stopped before attempting cleanup again."; \
+	else \
+		echo "No active process detected. Proceeding with data directories removal..."; \
+		if sudo rm -rf /home/atoof/data/; then \
+			echo "Data directories successfully removed."; \
+		else \
+			echo "Failed to remove data directories. Please check permissions and try again."; \
+		fi \
+	fi
 	@echo "Cleanup completed."
 
 .PHONY: all up down re stop start status clean prepare
