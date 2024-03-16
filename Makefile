@@ -35,35 +35,35 @@ prepare:
 
 # Build and start the services
 up: prepare
-	@docker-compose -f srcs/docker-compose.yml up --build -d
+	@docker compose -f srcs/docker-compose.yml up --build -d
 
 # Stop and remove containers, networks
 down:
 	@echo "This will stop and remove all containers, networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]
-	@docker-compose -f srcs/docker-compose.yml down
+	@docker compose -f srcs/docker-compose.yml down
 
 # Restart the services by rebuilding them without showing down's message
 re: prepare
 	@echo "Restarting services. This will stop, remove, and rebuild all containers and networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]
-	@docker-compose -f srcs/docker-compose.yml down
-	@docker-compose -f srcs/docker-compose.yml up --build -d
+	@docker compose -f srcs/docker-compose.yml down
+	@docker compose -f srcs/docker-compose.yml up --build -d
 
 # Stop services without removing them
 stop:
-	@docker-compose -f srcs/docker-compose.yml stop
+	@docker compose -f srcs/docker-compose.yml stop
 
 # Start services without rebuilding
 start:
-	@docker-compose -f srcs/docker-compose.yml start
+	@docker compose -f srcs/docker-compose.yml start
 
 # Show status of the services
 status:
-	@docker-compose -f srcs/docker-compose.yml ps
+	@docker compose -f srcs/docker-compose.yml ps
 
 # Remove all Docker containers, images, volumes, and networks
 clean:
 	@echo "This will remove all containers, images, volumes, and networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]
-	@docker-compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans
+	@docker compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans
 	@docker volume prune -f
 	@docker system prune -af --volumes
 	@echo "Waiting for Docker resources to be fully released..."
