@@ -89,7 +89,6 @@ fclean:
 	@sudo sed -i'' "/$(DOMAIN)/d" /etc/hosts
 	@echo "Domain removed from /etc/hosts."
 	@echo "Cleaning up Docker resources..."
-	# Here, insert the commands for Docker cleanup
 	@echo "Docker resources cleaned up."
 	@SKIP_CLEAN_PROMPT=1 $(MAKE) clean --no-print-directory
 
