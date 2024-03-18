@@ -62,7 +62,9 @@ status:
 
 # Remove all Docker containers, images, volumes, and networks
 clean:
-	@echo "This will remove all containers, images, volumes, and networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]
+	@if [ -z "$$SKIP_CLEAN_PROMPT" ]; then \
+		echo "This will remove all containers, images, volumes, and networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]; \
+	fi
 	@docker compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans
 	@docker volume prune -f
 	@docker system prune -af --volumes
@@ -82,4 +84,13 @@ clean:
 	fi
 	@echo "Cleanup completed."
 
-.PHONY: all up down re stop start status clean prepare
+fclean:
+	@echo "This will remove the domain $(DOMAIN) from /etc/hosts and clean up Docker resources. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]
+	@sudo sed -i'' "/$(DOMAIN)/d" /etc/hosts
+	@echo "Domain removed from /etc/hosts."
+	@echo "Cleaning up Docker resources..."
+	# Here, insert the commands for Docker cleanup
+	@echo "Docker resources cleaned up."
+	@SKIP_CLEAN_PROMPT=1 $(MAKE) clean --no-print-directory
+
+.PHONY: all up down re stop start status clean fclean prepare
