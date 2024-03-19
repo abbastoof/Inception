@@ -13,8 +13,25 @@
 # Variables
 DOMAIN = atoof.42.fr
 
-# Default target
+
 all: up
+	@echo "Waiting for WordPress to become available at https://atoof.42.fr:443..."
+	@success_count=0; \
+	while true; do \
+		response=$$(curl -s -k -o /dev/null -w "%{http_code}" https://atoof.42.fr:443); \
+		if [ "$$response" = "200" ]; then \
+			success_count=$$((success_count + 1)); \
+			if [ $$success_count -ge 2 ]; then \
+				echo "WordPress is available at https://atoof.42.fr:443"; \
+				break; \
+			fi; \
+		elif [ "$$response" = "502" ] && [ $$success_count -ge 2 ]; then \
+			success_count=1;  # Reset to require one more 200 OK after seeing a 502, but keep the progress towards availability. \
+		else \
+			success_count=0;  # Reset if the response is not 200 and we haven't reached our success criteria yet. \
+		fi; \
+		sleep 5; \
+	done
 
 # Prepare environment
 prepare:
