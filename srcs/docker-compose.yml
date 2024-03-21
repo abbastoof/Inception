@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.8'
 
 services:
   nginx:
@@ -9,7 +9,8 @@ services:
     ports:
       - "443:443"
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
     volumes:
       - wordpress-data:/var/www/html
     networks:
@@ -17,7 +18,27 @@ services:
     env_file:
       - .env
     restart: always
-
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    build:
+      context: ./requirements/wordpress
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    volumes:
+      - wordpress-data:/var/www/html
+    networks:
+      - inception
+    env_file:
+      - .env
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep '[p]hp-fpm: master'"]
+      interval: 1s
+      retries: 80
+      start_period: 1s
+      timeout: 1s
   mariadb:
     image: mariadb
     container_name: mariadb
@@ -30,22 +51,12 @@ services:
     networks:
       - inception
     restart: always
-
-
-  wordpress:
-    image: wordpress
-    container_name: wordpress
-    build:
-      context: ./requirements/wordpress
-    depends_on:
-      - mariadb
-    volumes:
-      - wordpress-data:/var/www/html
-    networks:
-      - inception
-    env_file:
-      - .env
-    restart: always
+    healthcheck:
+      test: "exit 0"
+      interval: 1s
+      retries: 10
+      start_period: 1s
+      timeout: 1s
 
 networks:
   inception:

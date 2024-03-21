@@ -1,24 +1,5 @@
 #!/bin/sh
 
-# Initialize retry count
-RETRY_COUNT=0
-MAX_RETRIES=24
-RETRY_INTERVAL=5
-
-# Wait for MariaDB to be ready
-while ! mariadb -h"${MARIA_DB_HOST}" -u"${MARIA_DB_USER}" -p"${MARIA_DB_PASSWORD}" -e "SELECT 1" "${MARIA_DB_DATABASE}" > /dev/null 2>&1; do
-    RETRY_COUNT=$((RETRY_COUNT+1))
-    if [ "$RETRY_COUNT" -le "$MAX_RETRIES" ]; then
-        echo "MariaDB is not ready. Attempt ${RETRY_COUNT}/${MAX_RETRIES}. Waiting ${RETRY_INTERVAL} seconds..."
-        sleep $RETRY_INTERVAL
-    else
-        echo "Failed to connect to MariaDB after ${MAX_RETRIES} attempts. Exiting."
-        exit 1
-    fi
-done
-
-echo "MariaDB is ready!"
-
 # Proceed with WordPress setup if not already installed
 if [ -f "wp-config.php" ]; then
     echo "WordPress is already installed."
