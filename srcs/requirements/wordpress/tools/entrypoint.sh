@@ -35,10 +35,11 @@ else
     touch /var/www/html/.wordpress_installed
 fi
 
+
 # Set permissions after installation
 chown -R www-data:www-data /var/www/html
 chmod -R 775 /var/www/html
 
-# Start PHP-FPM in the foreground
+# Start PHP-FPM in the foreground, PHP-FPM will handle the process management
 echo "Starting PHP-FPM..."
 exec /usr/sbin/php-fpm7.4 -R -F

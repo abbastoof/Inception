@@ -15,23 +15,6 @@ DOMAIN = atoof.42.fr
 
 
 all: up
-	@echo "Waiting for WordPress to become available at https://atoof.42.fr:443..."
-	@success_count=0; \
-	while true; do \
-		response=$$(curl -s -k -o /dev/null -w "%{http_code}" https://atoof.42.fr:443); \
-		if [ "$$response" = "200" ]; then \
-			success_count=$$((success_count + 1)); \
-			if [ $$success_count -ge 2 ]; then \
-				echo "WordPress is available at https://atoof.42.fr:443"; \
-				break; \
-			fi; \
-		elif [ "$$response" = "502" ] && [ $$success_count -ge 2 ]; then \
-			success_count=1;  # Reset to require one more 200 OK after seeing a 502, but keep the progress towards availability. \
-		else \
-			success_count=0;  # Reset if the response is not 200 and we haven't reached our success criteria yet. \
-		fi; \
-		sleep 5; \
-	done
 
 # Prepare environment
 prepare:
@@ -82,6 +65,7 @@ clean:
 	@if [ -z "$$SKIP_CLEAN_PROMPT" ]; then \
 		echo "This will remove all containers, images, volumes, and networks. Are you sure? [y/N]" && read ans && [ $${ans:-N} = y ]; \
 	fi
+#next line will remove all containers, networks, and volumes created by the docker-compose file in the current directory and remove all images associated with the services in the docker-compose file as well as the volumes and orphaned containers created by the services.
 	@docker compose -f srcs/docker-compose.yml down --rmi all --volumes --remove-orphans
 	@docker volume prune -f
 	@docker system prune -af --volumes

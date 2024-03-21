@@ -1,9 +1,19 @@
 FROM debian:11
 
+# Set non-interactive to suppress debconf messages
+ENV DEBIAN_FRONTEND=noninteractive
+
 WORKDIR /
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get -y install php php-fpm mariadb-client sendmail wordpress wget
+# Check if the www-data group exists, if not, create it
+RUN getent group www-data || addgroup --system www-data
+
+# Check if the www-data user exists, if not, create it and add to the www-data group
+RUN id -u www-data &>/dev/null || adduser --system --ingroup www-data --disabled-password --no-create-home www-data
+
+
+RUN apt-get update && \
+	apt-get -y install php php-fpm mariadb-client sendmail wordpress wget
 
 RUN mkdir -p /run/php && mkdir -p /var/www/html
 
